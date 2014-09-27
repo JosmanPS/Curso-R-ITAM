@@ -1,0 +1,140 @@
+Curso introductorio a R - Instalación y Ayuda
+========================================================
+author: José Manuel Proudinat Silva
+
+jmps2812@gmail.com
+
+@JosmanPS
+
+GitHub: JosmanPS
+
+
+Instalación
+========================================================
+
+Instalando R:
+
+- Abrimos <http://www.r-project.org/> en el explorador.
+- Hacemos click en CRAN.
+- Seleccionamos el "mirror" del ITAM.
+- Seleccionamos nuestro sistema operativo y descargamos el instalador.
+- Seguimos las instrucciones del instalador.
+
+Instalando RStudio
+========================================================
+RStudio es un IDE muy útil para R que además ofrece una gran gama de herramientas para desarrollo de aplicaciones y publicaciones basadas en lenguaje R.
+
+Instalación:
+
+- Abrimos <http://www.rstudio.com/> en el explorador.
+- Hacemos click en Products -> RStudio.
+- Bajamos y hacemos clock en "Download RStudio Desktop".
+- Descargamos el instalador indicado para nuestro sistema operativo.
+- Seguimos las instrucciones del instalador.
+
+Instalando paquetes
+========================================================
+R se maneja a través de paquetes, los cuales son conjuntos de funciones específicas. Por ejemplo, instalaremos el paquete ggplot2, el cual contiene muchas funciones que nos servirán para hacer gráficas muy atractivas visualmente. Para ello, usaremos la función `install.packages()`.
+
+```{r, eval=FALSE}
+install.packages("ggplot2")
+```
+
+Pidiendo Ayuda de funciones
+========================================================
+- Primero, si queremos buscar la ayuda más general de R, desde manuales introductorios, hasta los vignettes de todos nuestros paquetes usaremos la función `help.start()`.
+- Para pedir ayuda sobre una función específica tenemos 3 funciones que nos serán muy útiles. Para ver un ejemplo, buscaremos ayuda de la función `mean()`, la cual sirve para calcular medias en R.
+
+```{r,  eval=TRUE}
+# Ayuda en general sobre la función.
+help(mean)
+
+```
+
+========================
+```{r}
+?mean    # Usar ? es equivalente a help()
+
+# Ayuda sobre los argumentos de la función.
+args(mean)
+```
+
+=============================
+```{r}
+# Un ejemplo de como usar la función.
+example(mean)
+```
+
+Pidiendo ayuda con "keyword"
+=====================
+Cuando no estemos seguros del nombre de una función podemos usar palabras clave para buscar lo que necestiamos. Para eso usamos la función `help.search()`.
+```{r}
+# Ejemplo: Queremos buscar funciones sobre la distribución normal
+help.search("normal")
+
+# Equivalentemente, podemos usar ??
+??normal
+```
+
+Pidiendo ayuda sobre un paquete
+=============
+Cuando necesitamos saber lo que contiene un paquete y como utilizarlo usaremos la función `help(package="")'.
+```{r}
+# Buscaremos ayuda del paquete que instalamos anteriormente
+help(package = "ggplot2")
+
+```
+
+=======
+Algunos paquetes incluyen "vignettes" que son documentos como introducciones, tutoriales o referencias. Para verlos usamos las siguientes funciones:
+
+```{r, eval=FALSE}
+# Para ver la lista completa de vignettes
+vignette()
+
+# Vignettes de un paquete en específico (ej:)
+vignette(package = "markdown")
+
+# Cargamos un vignette en específico
+vignette("markdown-examples")
+```
+
+Ayuda en la Web
+===================
+```{r, eval=FALSE}
+# Buscando en la red de R
+RSiteSearch("bayes")
+
+```
+
+Actualmente, existen muchos sitios en internet, además de los oficiales de R, que son de gran utilidad para los usuarios. Mencionamos los más importantes:
+- http://rseek.org/
+Buscador de google enfocado en R.
+- http://stackoverflow.com/
+Sitio de Q&A enfocado en problemas de programación.
+- http://stats.stackexchange.com/
+Sitio de Q&A enfocado en problemas de estadística.
+
+Buscando paquetes y funciones en R
+=================
+Existen miles de paquetes en R y puede que no estés seguro de cuál es el que necesitas para determinada tarea.
+Busca en las siguientes direcciones:
+- http://cran.r-project.org/web/views/
+Buscador por temas.
+- http://crantastic.org/
+Página donde podrás encontrar los paquetes más relevantes.
+- http://rseek.org/
+Para buscar funciones, usa una palabra clave y da click en la opción "Functions".
+
+Buscando en las "Mailing Lsits"
+==========
+A través de las Mailing Lists de R podemos hacer preguntas directamente a los desarrolladores del paquete estadístico. Para buscar una pregunta:
+- Entramos a http://rseek.org/, buscamos lo que deseamos, y damos click en la opción "support lists".
+
+Para hacer una pregunta:
+- Entramos a https://stat.ethz.ch/mailman/listinfo/r-help/
+- Nos suscribimos.
+- Leemos la guía para hacer posts.
+- Mandamos nuestra pregunta a r-help@r-project.org.
+
+

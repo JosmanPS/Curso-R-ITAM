@@ -1,0 +1,228 @@
+Curso introductorio a R - Elementos y funciones básicas
+========================================================
+author: José Manuel Proudinat Silva
+
+jmps2812@gmail.com
+
+@JosmanPS
+
+GitHub: JosmanPS
+
+Directorio de trabajo
+================
+Antes que nada, siempre es importante especificar el directorio donde se guardará nuestro trabajo.
+```{r}
+# Para ver en qué directorio nos encontramos actualmente
+getwd()
+
+# Para especificar un directorio de trabajo distinto
+setwd("/Users/josmanps/Desktop/Curso R/Pres2")
+```
+
+Asignación de variables e impresión
+========
+
+Para asginar variables utilizamos <-, también podemos usar "=" pero espreferible la primera manera
+```{r}
+text <- "El valor de Pi es: "
+value <- pi
+```
+
+R es lenguaje orientado a objetos, donde cada variable es un objeto con una clase específica. Las clases de los objetos determinan qué funciones pueden aplicarse a ellos.
+```{r}
+class(text)
+```
+
+=========
+```{r}
+class(value)
+```
+
+Cuando queremos imprimir el valor de una variable podemos usar la función `print()`o simplemento escribir el nombre de la variable.
+```{r}
+print(value)
+value
+```
+
+========
+Podemos imprimir múltiples variables del siguiente modo:
+```{r}
+print(text); print(value)
+cat(text, value, "\n")
+```
+
+=========
+Si queremos conocer todas las variables que tenemos en nuestro entorno usamos la siguiente función:
+```{r}
+ls()
+```
+O simplemente observamos en la ventana Envrionment de RStudio.
+
+=========
+Si queremos eliminar alguna variable en el entorno, utilizamos la función `rm()`.
+```{r}
+rm("value")
+ls() # Observamos que la variable value ya no aparece
+
+```
+
+Vectores
+=======================
+Para crear vectores utilizamos la función `c()`.
+```{r}
+c(1, 2, 3) # Vector numérico
+c("apple", "orange", "banana") # Vector de caracteres
+c(TRUE, FALSE, FALSE) # Vector de tipo booleano
+```
+
+===============
+Podemos unir vectores con la misma función `c()`.
+```{r}
+v1 <- c(1, 2, 3)
+v2 <- c(4, 5, 6)
+c(v1, v2)
+v1 <- c("A", "B", "C")
+v2 <- c(1, 2, 3)
+c(v1, v2)
+```
+
+Algunas funciones básicas
+===================
+```{r}
+# Generamos datos a partir de una distribución normal
+x <- rnorm(n = 20)
+x <- rnorm(20) # Default: mean = 0, sd = 1
+y <- rnorm(n = 20, mean = 2, sd = 3)
+```
+
+====
+```{r}
+# Cargamos un paquete
+library("ggplot2")
+qplot(x, y) # Gráfica rápida del paquete ggplot2
+```
+
+====
+```{r}
+mean(x) # media
+median(x) # mediana
+var(x) # varianza
+```
+
+========
+```{r}
+sd(x) # desviación estándar
+cor(x, y) # Correlación
+cov(x, y) # Covarianza
+```
+
+Comparaciones entre vectores
+===================
+A la hora de hacer operadores lógicos necesitamos saber como comparar vectores. Para ello es necesario conocer los operadores lógicos en R y algunas funciones que nos simplificaran muchas comparaciones.
+```{r}
+# Operadores lógicos
+x <- 1
+x == 0 # Igualdad
+x != 0 # Desigualdad
+```
+
+=======
+```{r}
+x < 0 # Menor que
+x > 0 # Mayor que
+x <= 0
+x >= 0
+```
+
+=========
+Ahora veamos qué sucede con vectores.
+```{r}
+x <- c("A", "B", "C")
+y <- c("A", "C", "B")
+x == y
+x != y
+x < y
+```
+
+=========
+```{r}
+x > y
+x <= y
+x >= y
+```
+
+=========
+```{r}
+# Si nos interesa saber si algun elemento coinciden
+any(x == y)
+
+# Si queremos saber si todos los elementos coinciden
+all(x == y)
+```
+
+
+Operaciones con bases de datos
+===============
+```{r, eval=FALSE}
+data() # Nos muestra las bases de datos de muestra que trae R
+```
+```{r}
+data(USArrests) # LLamamos a la base de datos
+data <- USArrests # Asignamos los datos a la variable 'data'
+head(data) # Vemos los primeros valores de la base
+```
+
+
+==============
+Cuando queremos aplicar funciones a estructuras de datos más sofisticadas que vectores, usamos la función `apply()`.
+```{r}
+# Aplicamos algunas funciones a los datos
+apply(data, 2, mean) 
+# El valor 2 en apply() indica que queremos aplicar la función a las columnas, si escribieramos 1, indicaría que se aplica a los renglones 
+```
+
+===========
+```{r}
+var(data) # Matriz de varianzas y covarianzas
+cor(data) # Matriz de correlaciones
+```
+
+
+Secuencias
+=============
+Las secuencias son muy importantes ya que nos permiten tener mejor control de los índices en matrices y vectores. Mostraremos unos ejemplos:
+```{r}
+# Secuencia simple
+seq(from = 1, to = 10)
+# Lo anterior es equivalente a hacer
+1:10
+```
+
+===========
+Si queremos que el intervalo entre cada elemento sea distinto de 1, necesitamos hacer lo siguiente:
+```{r}
+seq(from = 1, to = 11, by = 2)
+```
+
+=============
+La función `rep()`es muy útil a la hora de escribir secuencias que se repitan.
+```{r}
+# Repetir un elemento
+rep(1, times = 10)
+
+# Podemos repetir un vector o secuencia
+rep(c(1,2,3), times = 3)
+```
+
+=========
+```{r}
+# Podemos hacer que cada elemento de un vector o secuencia se repitan 
+rep(c(1,2,3), each = 3)
+
+# Podemos crear una secuencia de un valor a otro indicando el tamaño
+seq(from = 1, to = 2, length.out = 5)
+```
+
+Selección de elementos en vectores y matrices
+=============
+
