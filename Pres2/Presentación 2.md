@@ -18,12 +18,12 @@ getwd()
 ```
 
 ```
-[1] "/Users/josmanps/Desktop/Curso R/Pres2"
+[1] "/Users/josmanps/REPOS/Curso-R-ITAM/Pres2"
 ```
 
 ```r
 # Para especificar un directorio de trabajo distinto
-setwd("/Users/josmanps/Desktop/Curso R/Pres2")
+setwd("/Users/josmanps/REPOS/Curso-R-ITAM/Pres2")
 ```
 
 Asignación de variables e impresión
@@ -199,7 +199,7 @@ mean(x) # media
 ```
 
 ```
-[1] -0.5165
+[1] 0.2084
 ```
 
 ```r
@@ -207,7 +207,7 @@ median(x) # mediana
 ```
 
 ```
-[1] -0.5387
+[1] 0.5534
 ```
 
 ```r
@@ -215,7 +215,7 @@ var(x) # varianza
 ```
 
 ```
-[1] 1.006
+[1] 1.15
 ```
 
 ========
@@ -225,7 +225,7 @@ sd(x) # desviación estándar
 ```
 
 ```
-[1] 1.003
+[1] 1.072
 ```
 
 ```r
@@ -233,7 +233,7 @@ cor(x, y) # Correlación
 ```
 
 ```
-[1] -0.1707
+[1] -0.2227
 ```
 
 ```r
@@ -241,7 +241,7 @@ cov(x, y) # Covarianza
 ```
 
 ```
-[1] -0.5407
+[1] -0.6629
 ```
 
 Comparaciones entre vectores
@@ -520,4 +520,239 @@ seq(from = 1, to = 2, length.out = 5)
 
 Selección de elementos en vectores y matrices
 =============
+En esta sección mostraremos distintas formas de seleccionar muestras de vectores y matrices segun la tarea o la necesidad que tengamos. Primero veremos como funciona con **vectores**:
+
+```r
+pares <- 2 * 1:10 # Creamos un vector
+
+# Vemos algunos de sus elementos individuales. Para esto solo indicamos en un [ ] el valor que deseamos
+pares[1]
+```
+
+```
+[1] 2
+```
+
+====
+
+```r
+pares[2]
+```
+
+```
+[1] 4
+```
+Podemos obtener múltiples valores, indicando una secuencia de las posiciones o un vector indicador:
+
+```r
+pares[1:3]
+```
+
+```
+[1] 2 4 6
+```
+
+```r
+pares[c(2, 3, 6)]
+```
+
+```
+[1]  4  6 12
+```
+
+========
+Podemos también indicar que valores sean los que no se muestran del total de elementos, indicando las posiciones en valor negativo.
+
+```r
+pares[-1]      # Quita el primer elemento
+```
+
+```
+[1]  4  6  8 10 12 14 16 18 20
+```
+
+```r
+pares[- (1:3)] # Quita los primeros 3 elementos
+```
+
+```
+[1]  8 10 12 14 16 18 20
+```
+
+```r
+pares[- c(2, 3, 6)] # Quita los elementos indicados
+```
+
+```
+[1]  2  8 10 14 16 18 20
+```
+
+========
+También se puede indicar que valores queremos ver a través de vectores lógicos.
+
+```r
+pares > 10
+```
+
+```
+ [1] FALSE FALSE FALSE FALSE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE
+```
+
+```r
+pares[pares > 10]
+```
+
+```
+[1] 12 14 16 18 20
+```
+
+========
+Haciendo un poco más de estadística, retomemos la base de datos que teníamos anteriormente:
+
+```r
+str(data)
+```
+
+```
+'data.frame':	50 obs. of  4 variables:
+ $ Murder  : num  13.2 10 8.1 8.8 9 7.9 3.3 5.9 15.4 17.4 ...
+ $ Assault : int  236 263 294 190 276 204 110 238 335 211 ...
+ $ UrbanPop: int  58 48 80 50 91 78 77 72 80 60 ...
+ $ Rape    : num  21.2 44.5 31 19.5 40.6 38.7 11.1 15.8 31.9 25.8 ...
+```
+
+=====
+Tomaremos un vector de nuestra base de datos y seleccionaremos elementos que nos interesan de él con un enfoque más estadístico:
+
+```r
+murder <- data$Murder  # Seleccionamos el vector de datos 'murder'
+summary(murder)
+```
+
+```
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   0.80    4.08    7.25    7.79   11.30   17.40 
+```
+
+=======
+
+```r
+murder[murder > mean(murder)] # Valores mayores que la media
+```
+
+```
+ [1] 13.2 10.0  8.1  8.8  9.0  7.9 15.4 17.4 10.4  9.7 15.4 11.3 12.1 16.1
+[15]  9.0 12.2 11.4 11.1 13.0 14.4 13.2 12.7  8.5
+```
+
+```r
+murder[murder > median(murder)] # Valores mayores que la mediana
+```
+
+```
+ [1] 13.2 10.0  8.1  8.8  9.0  7.9 15.4 17.4 10.4  9.7 15.4 11.3 12.1 16.1
+[15]  9.0 12.2  7.4 11.4 11.1 13.0  7.3 14.4 13.2 12.7  8.5
+```
+
+=======
+
+```r
+# Valores en el primer o último decil
+murder[murder < quantile(murder, 0.1) | murder > quantile(murder, 0.9)] # Notar que usamos | como 'or'
+```
+
+```
+ [1] 15.4 17.4  2.2 15.4  2.1 16.1  2.1  0.8 14.4  2.2
+```
+
+```r
+# Valores entre el tercer y quinto decil
+murder[murder > quantile(murder, 0.3) & murder < quantile(murder, 0.5)]
+```
+
+```
+ [1] 5.9 5.3 7.2 6.0 6.0 6.6 4.9 6.3 5.7 6.8
+```
+
+=====
+
+```r
+# Añadiremos algunos valores faltantes
+murder[c(1, 3, 9, 32, 48, 11, 21, 30)] <- NA
+
+# Podemos usar la selección de elementos para quitar los valores faltantes o valores nulos
+murder[!is.na(murder) & !is.null(murder)]  # El signo ! indica que se tome el valor lógico contrario, en este caso no queremos saber los valores faltantes o nulos, sino los que no lo son, por eso usamos !
+```
+
+```
+ [1] 10.0  8.8  9.0  7.9  3.3  5.9 17.4  2.6 10.4  7.2  2.2  6.0  9.7 15.4
+[15]  2.1 11.3 12.1  2.7 16.1  9.0  6.0  4.3 12.2  2.1 11.4 13.0  0.8  7.3
+[29]  6.6  4.9  6.3  3.4 14.4  3.8 13.2 12.7  3.2  2.2  8.5  4.0  2.6  6.8
+```
+
+======
+A la hora de hacer selección de elementos en matrices o bases de datos, se aplica la misma lógica que cuando se hace con vectores. La diferencia radica en que las matrices tienen posiciones del estilo [i,j] de sus elementos.
+
+```r
+# Algunos ejemplos
+data[15, 3] # Nos da el valor del individuo 15 en la variable 3
+```
+
+```
+[1] 57
+```
+
+```r
+# Podemos seleccionar una columna completa
+data[ ,2]
+data[ ,c(2,3)] # Más de una columna
+```
+
+=====
+
+```r
+# Seleccionamos un grupo de individuos
+data[1:5, ]  # Los primeros 5 individuos
+```
+
+```
+           Murder Assault UrbanPop Rape
+Alabama      13.2     236       58 21.2
+Alaska       10.0     263       48 44.5
+Arizona       8.1     294       80 31.0
+Arkansas      8.8     190       50 19.5
+California    9.0     276       91 40.6
+```
+
+```r
+data[1:5, c(2,4)] # Los primeros 5 individuos y solo las variables 2 y 4
+```
+
+```
+           Assault Rape
+Alabama        236 21.2
+Alaska         263 44.5
+Arizona        294 31.0
+Arkansas       190 19.5
+California     276 40.6
+```
+
+====
+
+```r
+# Podemos seleccionar por nombre
+data["Arizona", c("Assault", "Rape")]
+```
+
+```
+        Assault Rape
+Arizona     294   31
+```
+En fin, cualquier forma que utilizamos para seleccionar elementos en vectores puede usarse al seleccionar elementos de matrices. Solo debemos recordar indicar tanto para i como para j el criterio de selección que se usará.
+
+
+Operaciones matriciales
+=========
+
+
 

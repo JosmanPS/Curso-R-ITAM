@@ -16,7 +16,7 @@ Antes que nada, siempre es importante especificar el directorio donde se guardar
 getwd()
 
 # Para especificar un directorio de trabajo distinto
-setwd("/Users/josmanps/Desktop/Curso R/Pres2")
+setwd("/Users/josmanps/REPOS/Curso-R-ITAM/Pres2")
 ```
 
 Asignación de variables e impresión
@@ -225,4 +225,106 @@ seq(from = 1, to = 2, length.out = 5)
 
 Selección de elementos en vectores y matrices
 =============
+En esta sección mostraremos distintas formas de seleccionar muestras de vectores y matrices segun la tarea o la necesidad que tengamos. Primero veremos como funciona con **vectores**:
+```{r}
+pares <- 2 * 1:10 # Creamos un vector
+
+# Vemos algunos de sus elementos individuales. Para esto solo indicamos en un [ ] el valor que deseamos
+pares[1]
+```
+
+====
+```{r}
+pares[2]
+```
+Podemos obtener múltiples valores, indicando una secuencia de las posiciones o un vector indicador:
+```{r}
+pares[1:3]
+pares[c(2, 3, 6)]
+```
+
+========
+Podemos también indicar que valores sean los que no se muestran del total de elementos, indicando las posiciones en valor negativo.
+```{r}
+pares[-1]      # Quita el primer elemento
+pares[- (1:3)] # Quita los primeros 3 elementos
+pares[- c(2, 3, 6)] # Quita los elementos indicados
+```
+
+========
+También se puede indicar que valores queremos ver a través de vectores lógicos.
+```{r}
+pares > 10
+pares[pares > 10]
+```
+
+========
+Haciendo un poco más de estadística, retomemos la base de datos que teníamos anteriormente:
+```{r}
+str(data)
+```
+
+=====
+Tomaremos un vector de nuestra base de datos y seleccionaremos elementos que nos interesan de él con un enfoque más estadístico:
+```{r}
+murder <- data$Murder  # Seleccionamos el vector de datos 'murder'
+summary(murder)
+```
+
+=======
+```{r}
+murder[murder > mean(murder)] # Valores mayores que la media
+murder[murder > median(murder)] # Valores mayores que la mediana
+```
+
+=======
+```{r}
+# Valores en el primer o último decil
+murder[murder < quantile(murder, 0.1) | murder > quantile(murder, 0.9)] # Notar que usamos | como 'or'
+
+# Valores entre el tercer y quinto decil
+murder[murder > quantile(murder, 0.3) & murder < quantile(murder, 0.5)]
+```
+
+=====
+```{r}
+# Añadiremos algunos valores faltantes
+murder[c(1, 3, 9, 32, 48, 11, 21, 30)] <- NA
+
+# Podemos usar la selección de elementos para quitar los valores faltantes o valores nulos
+murder[!is.na(murder) & !is.null(murder)]  # El signo ! indica que se tome el valor lógico contrario, en este caso no queremos saber los valores faltantes o nulos, sino los que no lo son, por eso usamos !
+```
+
+======
+A la hora de hacer selección de elementos en matrices o bases de datos, se aplica la misma lógica que cuando se hace con vectores. La diferencia radica en que las matrices tienen posiciones del estilo [i,j] de sus elementos.
+```{r}
+# Algunos ejemplos
+data[15, 3] # Nos da el valor del individuo 15 en la variable 3
+```
+```{r, eval=FALSE}
+# Podemos seleccionar una columna completa
+data[ ,2]
+data[ ,c(2,3)] # Más de una columna
+```
+
+=====
+```{r}
+# Seleccionamos un grupo de individuos
+data[1:5, ]  # Los primeros 5 individuos
+
+data[1:5, c(2,4)] # Los primeros 5 individuos y solo las variables 2 y 4
+```
+
+====
+```{r}
+# Podemos seleccionar por nombre
+data["Arizona", c("Assault", "Rape")]
+```
+En fin, cualquier forma que utilizamos para seleccionar elementos en vectores puede usarse al seleccionar elementos de matrices. Solo debemos recordar indicar tanto para i como para j el criterio de selección que se usará.
+
+
+Operaciones matriciales
+=========
+
+
 
