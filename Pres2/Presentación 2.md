@@ -199,7 +199,7 @@ mean(x) # media
 ```
 
 ```
-[1] 0.2084
+[1] -0.4321
 ```
 
 ```r
@@ -207,7 +207,7 @@ median(x) # mediana
 ```
 
 ```
-[1] 0.5534
+[1] -0.3859
 ```
 
 ```r
@@ -215,7 +215,7 @@ var(x) # varianza
 ```
 
 ```
-[1] 1.15
+[1] 1.236
 ```
 
 ========
@@ -225,7 +225,7 @@ sd(x) # desviación estándar
 ```
 
 ```
-[1] 1.072
+[1] 1.112
 ```
 
 ```r
@@ -233,7 +233,7 @@ cor(x, y) # Correlación
 ```
 
 ```
-[1] -0.2227
+[1] -0.08904
 ```
 
 ```r
@@ -241,7 +241,7 @@ cov(x, y) # Covarianza
 ```
 
 ```
-[1] -0.6629
+[1] -0.2852
 ```
 
 Comparaciones entre vectores
@@ -753,6 +753,340 @@ En fin, cualquier forma que utilizamos para seleccionar elementos en vectores pu
 
 Operaciones matriciales
 =========
+Queremos mostrar ahora, como funcionan las operaciones binarias entre vectores y matrices. Lo primero que hay que observar es que los operadores comunes +, -, *, / no operan como está definido en matemáticas para vectores y matrices, sino que hacen las operaciones elemento por elemento.
 
+```r
+A <- matrix(c(1,2,3,4), 2, 2)
+I <- diag(1,2)
+A
+```
 
+```
+     [,1] [,2]
+[1,]    1    3
+[2,]    2    4
+```
 
+========
+
+```r
+I
+```
+
+```
+     [,1] [,2]
+[1,]    1    0
+[2,]    0    1
+```
+
+```r
+A * I
+```
+
+```
+     [,1] [,2]
+[1,]    1    0
+[2,]    0    4
+```
+Con este ejemplo podemos observar que son necesarias otros operadores binarios para trabajar de la forma convencional en que se hace con vectores y matrices. Sin embargo, estas operaciones también nos pueden ser útiles.
+
+======
+Veamos algunos ejemplos de estas operaciones:
+
+```r
+u <- c(1,2,3,4)
+v <- c(5,6,7,8)
+
+u + v
+```
+
+```
+[1]  6  8 10 12
+```
+
+```r
+v - u
+```
+
+```
+[1] 4 4 4 4
+```
+
+```r
+u * v
+```
+
+```
+[1]  5 12 21 32
+```
+
+========
+
+```r
+u / v
+```
+
+```
+[1] 0.2000 0.3333 0.4286 0.5000
+```
+
+```r
+u ^ v
+```
+
+```
+[1]     1    64  2187 65536
+```
+
+======
+También podemos hacer operaciones entre escalares y vectores de esta forma.
+
+```r
+u + 3
+```
+
+```
+[1] 4 5 6 7
+```
+
+```r
+u - 1
+```
+
+```
+[1] 0 1 2 3
+```
+
+```r
+u * 2
+```
+
+```
+[1] 2 4 6 8
+```
+
+======
+
+```r
+u / 2
+```
+
+```
+[1] 0.5 1.0 1.5 2.0
+```
+
+```r
+u ^ 2
+```
+
+```
+[1]  1  4  9 16
+```
+
+```r
+2 ^ u
+```
+
+```
+[1]  2  4  8 16
+```
+
+=====
+Con esto ya podríamos estandarizar un vector de datos.
+
+```r
+u <- data$Assault
+u <- (u - mean(u)) / sd(u)
+ggplot(as.data.frame(u), aes(x = u)) + geom_density() + geom_vline(aes(mean(u)))
+```
+
+![plot of chunk unnamed-chunk-48](Presentación 2-figure/unnamed-chunk-48.png) 
+
+=====
+Algunas otras operaciones
+
+```r
+c(2, 3) %% 2  # Módulo
+```
+
+```
+[1] 0 1
+```
+
+```r
+c(3,4,5) %/% 2 # División entera
+```
+
+```
+[1] 1 2 2
+```
+
+```r
+c(2,3) %in% c(3,4,5) # Busca que el elemento esté en el vector
+```
+
+```
+[1] FALSE  TRUE
+```
+
+Operaciones con matrices
+======
+Ahora veamos operadores aplicados a matrices:
+
+```r
+A <- matrix(c(1,2,3,4), 2, 2)
+A
+```
+
+```
+     [,1] [,2]
+[1,]    1    3
+[2,]    2    4
+```
+
+```r
+t(A) # Matriz transpuesta
+```
+
+```
+     [,1] [,2]
+[1,]    1    2
+[2,]    3    4
+```
+
+======
+
+```r
+solve(A) # Matriz inversa
+```
+
+```
+     [,1] [,2]
+[1,]   -2  1.5
+[2,]    1 -0.5
+```
+
+```r
+A %*% solve(A) # Multiplicación matricial
+```
+
+```
+     [,1] [,2]
+[1,]    1    0
+[2,]    0    1
+```
+
+Definiendo nuestros propios operadores binarios
+=========
+Además de los preestablecidos por R, nosotros podemos definir operadores binarios propios del siguiente modo:
+
+```r
+# Supongamos que quiero hacer un operador binario %+% que me devuelva la diferencia simétrica entre dos vectores (o conjuntos)
+# Defino:
+'%+%' <- function(x,y) union(setdiff(x,y), setdiff(y,x))
+# Probamos:
+c(1,3,4,2,6) %+% c(3,4,5,6,7)
+```
+
+```
+[1] 1 2 5 7
+```
+
+Definiendo una función
+===========
+Además de operadores binarios, también podemos crear nuestras propias funciones del siguiente modo:
+
+```r
+# Crearemos una función que nos devuelva la media, mediana, sd y el vector estandarizado
+stats.center <- function(x){
+  list(media = mean(x), mediana = median(x), sd = sd(x), vect.stand = (x - mean(x)/sd(x)))
+}
+# Un ejemplo más elaborado está en la función PCA.plot, dentro de la carpeta "Otros Scripts"
+```
+
+======
+Ahora probemos la función:
+
+```r
+u <- data$Assault
+u <- stats.center(u)
+u
+```
+
+```
+$media
+[1] 170.8
+
+$mediana
+[1] 159
+
+$sd
+[1] 83.34
+
+$vect.stand
+ [1] 233.95 260.95 291.95 187.95 273.95 201.95 107.95 235.95 332.95 208.95
+[11]  43.95 117.95 246.95 110.95  53.95 112.95 106.95 246.95  80.95 297.95
+[21] 146.95 252.95  69.95 256.95 175.95 106.95  99.95 249.95  54.95 156.95
+[31] 282.95 251.95 334.95  42.95 117.95 148.95 156.95 103.95 171.95 276.95
+[41]  83.95 185.95 198.95 117.95  45.95 153.95 142.95  78.95  50.95 158.95
+```
+
+=====
+Veamos lo que nos regresó y guardemos cada cosa por separado.
+
+```r
+str(u)
+```
+
+```
+List of 4
+ $ media     : num 171
+ $ mediana   : num 159
+ $ sd        : num 83.3
+ $ vect.stand: num [1:50] 234 261 292 188 274 ...
+```
+
+```r
+media.u <- u$media
+mediana.u <- u$mediana
+sd.u <- u$sd
+stand.u <- u$vect.stand
+```
+
+======
+
+```r
+media.u
+```
+
+```
+[1] 170.8
+```
+
+```r
+mediana.u
+```
+
+```
+[1] 159
+```
+
+```r
+sd.u
+```
+
+```
+[1] 83.34
+```
+
+```r
+stand.u
+```
+
+```
+ [1] 233.95 260.95 291.95 187.95 273.95 201.95 107.95 235.95 332.95 208.95
+[11]  43.95 117.95 246.95 110.95  53.95 112.95 106.95 246.95  80.95 297.95
+[21] 146.95 252.95  69.95 256.95 175.95 106.95  99.95 249.95  54.95 156.95
+[31] 282.95 251.95 334.95  42.95 117.95 148.95 156.95 103.95 171.95 276.95
+[41]  83.95 185.95 198.95 117.95  45.95 153.95 142.95  78.95  50.95 158.95
+```

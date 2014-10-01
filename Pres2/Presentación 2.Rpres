@@ -325,6 +325,129 @@ En fin, cualquier forma que utilizamos para seleccionar elementos en vectores pu
 
 Operaciones matriciales
 =========
+Queremos mostrar ahora, como funcionan las operaciones binarias entre vectores y matrices. Lo primero que hay que observar es que los operadores comunes +, -, *, / no operan como está definido en matemáticas para vectores y matrices, sino que hacen las operaciones elemento por elemento.
+```{r}
+A <- matrix(c(1,2,3,4), 2, 2)
+I <- diag(1,2)
+A
+```
 
+========
+```{r}
+I
+A * I
+```
+Con este ejemplo podemos observar que son necesarias otros operadores binarios para trabajar de la forma convencional en que se hace con vectores y matrices. Sin embargo, estas operaciones también nos pueden ser útiles.
 
+======
+Veamos algunos ejemplos de estas operaciones:
+```{r}
+u <- c(1,2,3,4)
+v <- c(5,6,7,8)
 
+u + v
+v - u
+u * v
+```
+
+========
+```{r}
+u / v
+u ^ v
+
+```
+
+======
+También podemos hacer operaciones entre escalares y vectores de esta forma.
+```{r}
+u + 3
+u - 1
+u * 2
+```
+
+======
+```{r}
+u / 2
+u ^ 2
+2 ^ u
+```
+
+=====
+Con esto ya podríamos estandarizar un vector de datos.
+```{r, fig=TRUE}
+u <- data$Assault
+u <- (u - mean(u)) / sd(u)
+ggplot(as.data.frame(u), aes(x = u)) + geom_density() + geom_vline(aes(mean(u)))
+```
+
+=====
+Algunas otras operaciones
+```{r}
+c(2, 3) %% 2  # Módulo
+c(3,4,5) %/% 2 # División entera
+c(2,3) %in% c(3,4,5) # Busca que el elemento esté en el vector
+```
+
+Operaciones con matrices
+======
+Ahora veamos operadores aplicados a matrices:
+```{r}
+A <- matrix(c(1,2,3,4), 2, 2)
+A
+t(A) # Matriz transpuesta
+```
+
+======
+```{r}
+solve(A) # Matriz inversa
+A %*% solve(A) # Multiplicación matricial
+
+```
+
+Definiendo nuestros propios operadores binarios
+=========
+Además de los preestablecidos por R, nosotros podemos definir operadores binarios propios del siguiente modo:
+```{r}
+# Supongamos que quiero hacer un operador binario %+% que me devuelva la diferencia simétrica entre dos vectores (o conjuntos)
+# Defino:
+'%+%' <- function(x,y) union(setdiff(x,y), setdiff(y,x))
+# Probamos:
+c(1,3,4,2,6) %+% c(3,4,5,6,7)
+```
+
+Definiendo una función
+===========
+Además de operadores binarios, también podemos crear nuestras propias funciones del siguiente modo:
+```{r}
+# Crearemos una función que nos devuelva la media, mediana, sd y el vector estandarizado
+stats.center <- function(x){
+  list(media = mean(x), mediana = median(x), sd = sd(x), vect.stand = (x - mean(x)/sd(x)))
+}
+# Un ejemplo más elaborado está en la función PCA.plot, dentro de la carpeta "Otros Scripts"
+```
+
+======
+Ahora probemos la función:
+```{r}
+u <- data$Assault
+u <- stats.center(u)
+u
+```
+
+=====
+Veamos lo que nos regresó y guardemos cada cosa por separado.
+```{r}
+str(u)
+media.u <- u$media
+mediana.u <- u$mediana
+sd.u <- u$sd
+stand.u <- u$vect.stand
+```
+
+======
+```{r}
+media.u
+mediana.u
+sd.u
+stand.u
+```
