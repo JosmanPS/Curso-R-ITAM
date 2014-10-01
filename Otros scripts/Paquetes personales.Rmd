@@ -1,0 +1,19 @@
+---
+title: "Creando paquetes personales"
+author: "JosmanPS"
+date: "30 de septiembre de 2014"
+output: html_document
+---
+
+En este documento mostraremos una forma muy sencilla de crear paquetes en R. Esto será muy útil cuando tengan una cantidad grande de funciones que desean utilizar y que no quieren cargar una por una. Podemos crear un paquete con nuestras funciones y cargar todo el paquete en lugar de función por función.
+
+Primero necesitamos cargar los paquetes necesarios (si alguien no los tiene instalados, primero deben hacerlo). Abajo se muestra el código para instalar paquetes, por el momento están comentados porque en mi computadora ya están, solo quiten el signo de # y se instalará en sus computadoras.
+
+```{r,message=FALSE}
+# install.packages("devtools")
+library("devtools")
+# Estamos instalando un paquete que se encuentra en github, aún no está en el servidor de R
+# devtools::install_github("klutometis/roxygen")  
+library("roxygen2")
+```
+
