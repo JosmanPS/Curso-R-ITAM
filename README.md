@@ -12,6 +12,7 @@ La carpeta "Otros Scripts" contiene códigos que iré subiendo para complementar
 - "error comun mac.md": El código con el cual se puede corregir un error común con los compiladores de texto que ocurre cuando se intala R en MAC.
 - "PCAplot.R": Una función para hacer gráficas de Análisis de Componentes Principales.
 - "PCA y clusters.R": Un script que nos muestra un ejemplo de cómo hacer Análisis de Componentes Principales y Clusters desde R.
+- "Paquetes personales.Rmd": Un documento que nos explica como crear de manera muy sencilla nuestros propios paquetes de funciones en R. (En construcción)
 
 Según vayamos avanzando en el curso se irán añadiendo más archivos y carpetas. Cualquier modificación se notificará desde este archivo.
 
