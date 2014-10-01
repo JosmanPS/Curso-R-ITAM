@@ -17,3 +17,49 @@ library("devtools")
 library("roxygen2")
 ```
 
+Debemos tener las funciones que guardaremos en el paquete escritas en scripst difernetes, ej. 'myfunction.R'. Para que se guarden con la documentación necesaria seguiremos el siguiente formato de escritura:
+
+```{r, eval=FALSE}
+#' Regresión Lineal
+#'
+#' Esta función te regresa el vector Beta del modelo de regresión lineal.
+#' @param X Matriz de regresión.
+#' y Vector respuesta.
+#' @keywords regression
+#' @export
+#' @examples
+#' regresion()
+
+regresion <- function(X, y){
+  Beta <- solve(t(X) %*% X) %*% t(X) %*% y
+  Beta
+}
+```
+
+Por ejemplo, la función de arriba podríamos guardarla como 'regresion.R' en un script aparte. Los comentarios en este caso generarán automáticamente la documentación de la función detnro del paquete.
+
+- El primer renglón guarda el título del documento.
+- Lo siguiente, la descripción general de la función.
+- @param guarda los parámetros que se necesitan en la función y la descripción de ellos.
+- @keywords son palabras clave para búsqueda.
+- @examples guarda ejemplos de cómo utilizar la función.
+
+Continuando con la creación del paquete. Indicamos el directorio donde queremos que se guarde.
+```{r, eval=FALSE}
+setwd("/Users/josmanps/REPOS")
+create("Regresion") # Creamos el folder del paquete
+```
+
+Ahora, guardamos manualmente nuestro script 'regresion.R' en la carpeta "R" en el directorio donde se creo nuestro paquete. Al haber guardado todas las funciones que queremos en el paquete generaremos automáticamente la documentación.
+
+```{r, eval=FALSE}
+setwd("./Regresion")
+document()
+```
+
+Ahora podemos instalar nuestro paquete en la computadora.
+```{r, eval=FALSE}
+setwd("..")
+install("Regresion")
+```
+
