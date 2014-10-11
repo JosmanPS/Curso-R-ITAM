@@ -1,0 +1,77 @@
+---
+title: "dplyr - Manipulación de datos"
+author: "Josman"
+date: "10 de octubre de 2014"
+output: html_document
+---
+
+```{r}
+# load packages
+suppressMessages(library(dplyr))
+library(hflights)
+
+# explore data
+data(hflights)
+head(hflights)
+```
+
+Convertimos los datos en un local data frame. Esto hace que nuestros datos se impriman de manera más amigable.
+```{r}
+# convert to local data frame
+flights <- tbl_df(hflights)
+
+# printing only shows 10 rows and as many columns as can fit on your screen
+flights
+
+# you can specify that you want to see more rows
+print(flights, n=20)
+
+# convert to a normal data frame to see all of the columns
+data.frame(head(flights))
+```
+
+Filter: Inidicamos un criterio para seleccionar renglones
+===========
+```{r, eval=FALSE}
+# base R approach to view all flights on January 1
+flights[flights$Month==1 & flights$DayofMonth==1, ]
+```
+```{r}
+# dplyr approach
+# note: you can use comma or ampersand to represent AND condition
+filter(flights, Month==1, DayofMonth==1)
+
+# use pipe for OR condition
+filter(flights, UniqueCarrier=="AA" | UniqueCarrier=="UA")
+
+# you can also use %in% operator
+filter(flights, UniqueCarrier %in% c("AA", "UA"))
+```
+
+Select: Seleccionamos columnas por su nombre
+===========
+```{r,eval=FALSE}
+# base R approach to select DepTime, ArrTime, and FlightNum columns
+flights[, c("DepTime", "ArrTime", "FlightNum")]
+```
+```{r}
+# dplyr approach
+select(flights, DepTime, ArrTime, FlightNum)
+
+# use colon to select multiple contiguous columns, and use `contains` to match columns by name
+# note: `starts_with`, `ends_with`, and `matches` (for regular expressions) can also be used to match columns by name
+select(flights, Year:DayofMonth, contains("Taxi"), contains("Delay"))
+```
+
+"Encadenando"
+============
+```{r,eval=FALSE}
+# nesting method to select UniqueCarrier and DepDelay columns and filter for delays over 60 minutes
+filter(select(flights, UniqueCarrier, DepDelay), DepDelay > 60)
+```
+```{r}
+# chaining method
+flights %>%
+    select(UniqueCarrier, DepDelay) %>%
+    filter(DepDelay > 60)
+```

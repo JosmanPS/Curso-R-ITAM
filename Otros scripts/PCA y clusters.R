@@ -4,7 +4,7 @@
 # ===========================================================================================
 
 # Definimos el directorio de trabajo
-setwd("/Users/josmanps/REPOS/Curso-R-ITAM")
+setwd("/Users/josmanps/REPOS/Curso-R-ITAM/Otros scripts")
 # Cargamos el paquete ggplot2
 library("ggplot2")
 # Cargamos la función para gráficas de componentes principales
