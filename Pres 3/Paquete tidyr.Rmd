@@ -1,0 +1,104 @@
+---
+title: "Manipulación de datos - tidyr"
+author: "Josman"
+date: "14 de octubre de 2014"
+output: pdf_document
+---
+
+Una herramienta de gran utilidad para la manipulación de datos en R es el paquete tidyr. Se les llama datos "tidy" a aquellos con los que es fácil trabajar. Este tipo de manipulaciones nos servirá mucho para poder visualizar los datos de manera más eficiente. Debemos recordar que lo más importante de los datos tidy es que:
+
+- Cada columna es una variable.
+- Canda renglón es una observación.
+
+Para convertir datos desordenados en datos tidy, primero debemos identificar las variables en nuestra base de datos, después usamos las herramientas del paquete para moverlos en columnas. El paquete tidyr provee tres principales funciones para el arreglo de datos: gather(), separate() y spread().
+
+###Función gather()###
+
+La función gather() toma multiples columnas y las reune indicando valores clave, toma datos anchos para convertirlos en datos largos. A continuación mostramos un ejemplo de cómo utilizarlo. Se presenta un experimento en el que se dieron dos drogas distintas a 3 personas y se registró su ritmo cardiaco:
+
+```{r, message=FALSE}
+library(tidyr)
+library(dplyr)
+
+messy <- data.frame(
+  name = c("Wilbur", "Petunia", "Gregory"),
+  a = c(67, 80, 64),
+  b = c(56, 90, 50)
+)
+messy
+```
+
+Sin pensar en cómo está escrito en la base de datos, podemos identificar 3 variables: nombre, droga y ritmo cardiaco; pero únicamente el nombre está escrito como columna. Usaremos gather() para arreglar los datos como queremos que se presenten:
+
+```{r}
+messy %>%
+  gather(drug, heartrate, a:b)
+```
+
+###Función separate()###
+
+A veces, dos variables pueden encontrarse agrupadas en una misma columna, separate() nos permite dividir los datos. A continuación mostramos datos del tiempo que gastan las personas en sus teléfonos ya sea en sus casas o en el trabajo. A cada persona se le asignó de manera aleatoria al grupo de tratamiento o al grupo de control.
+
+```{r}
+set.seed(10)
+messy <- data.frame(
+  id = 1:4,
+  trt = sample(rep(c('control', 'treatment'), each = 2)),
+  work.T1 = runif(4),
+  home.T1 = runif(4),
+  work.T2 = runif(4),
+  home.T2 = runif(4)
+)
+
+messy
+```
+
+Primero usaremos la función gather() para comvertir las columnas work.T1, home.T1, work.T2 and home.T2 en parejas clave-valor del tiempo.
+
+```{r}
+tidier <- messy %>%
+  gather(key, time, -id, -trt)
+tidier %>% head(8)
+```
+
+Ahora usaremos separate() para dividir las claves en lugar y tiempo.
+
+```{r}
+tidy <- tidier %>%
+  separate(key, into = c("location", "time"), sep = "\\.") 
+tidy %>% head(8)
+```
+
+###Función spread()###
+
+La función spread() toma dos columnas (clave-valor) y las extiende en múltiples columnas, convirtiendo los datos largos en datos anchos. Mostraremos un pequeño ejemplo de finanzas:
+
+```{r}
+stocks <- data.frame(
+  time = as.Date('2009-01-01') + 0:9,
+  X = rnorm(10, 0, 1),
+  Y = rnorm(10, 0, 2),
+  Z = rnorm(10, 0, 4)
+)
+
+stocks
+```
+
+Primero usamos la función gather() para acomodar los datos.
+
+```{r}
+stocksm <- stocks %>% gather(stock, price, -time)
+stocksm %>% head(8)
+```
+
+Ahora que ya tenemos datos de este tipo, veamos qué podemos hacer con spread().
+
+```{r}
+# Expandimos los datos según el tipo de stock
+stocksm %>% spread(stock,price)
+
+# Expandimos los datos según la fecha
+stocksm %>% spread(time, price)
+```
+
+Con esto tenemos una introducción para crear bases de datos inteligentes que nos permitirán realizar las tareas con datos de manera más rápida y eficaz.
