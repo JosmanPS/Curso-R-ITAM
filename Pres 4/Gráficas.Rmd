@@ -1,0 +1,104 @@
+---
+title: "Gráficas"
+author: "Josman"
+date: "21 de octubre de 2014"
+output: pdf_document
+---
+
+Introducción
+=======
+
+En este documento explicaremos nociones básicas para el diseño de gráficas en R a través del paquete ggplot2, explicaremos lo elemental en cada tipo de gráfica y desarrollaremos la intuición detrás del código.
+
+```{r, message=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(RColorBrewer) # Paletas de colores
+library(gcookbook) # De aquí sacaremos varios datos para graficar
+```
+
+El paquete ggplot2 se llama a sí mismo como "una implementación de la gramática de las gráficas". Este paquete nos permite crear gráficas mapeando capas paso por paso de múltiples bases de datos. Para el diseño de las gráficas usaremos "aesthetics" lo que describe como las variables en los datos son mapeadas a través de características visuales y geométricas.
+
+Gráficas de barras
+==========
+ 
+Digamos que tenemos una base de datos como la siguiente:
+
+```{r}
+cabbage_exp
+```
+
+Queremos graficar el peso obtenido para cada fecha. Para ello usaremos una gráfica de barras. Detallaremos cada capa que vayamos agregando en la gráfica. Mientras vayamos avanzando en el tema, detallaremos menos la explicación del código, pues se sigue la misma lógica que en los primeros ejemplos.
+
+```{r}
+# La primera capa crea un objeto 'ggplot', indica la base de datos principal de la gráfica y que variables estamos graficando en el eje 'x' y en el eje 'y'.
+plot <- ggplot(data = cabbage_exp, aes(x = Date, y = Weight))
+
+# Este objeto solo conoce los datos, ahora indicaremos cómo graficarlos.
+# Vamos agregando capas con '+'.
+# geom_bar() indica que agregamos una capa con una gráfica de barras
+# position = "dodge" sirve para que las barras queden separadas
+# stat = "identity" indica que esta no es una gráfica de frecuencias, sino de dos variables
+# fill indica el color de relleno
+# col indica el color del contorno
+plot <- plot + geom_bar(position = "dodge", stat = "identity", fill = "lightblue", col = "black")
+plot
+
+```
+
+Digamos que ahora queremos ver como afecta el factor 'Cultivar' a la variable 'Weight' en cada fecha. Para ello podemos hacer gráficas de barras agrupadas.
+
+```{r}
+# Ahora a la primera capa le estamos indicando que el color de relleno va a ser determinado por el factor 'Cultivar'.
+plot <- ggplot(data = cabbage_exp, aes(x = Date, y = Weight, fill = Cultivar))
+
+# A la segunda capa le quitamos el indicador del color de relleno pues ya está determinado por la variable 'Cultivar'-
+plot <- plot + geom_bar(position = "dodge", stat = "identity", col = "black") 
+plot
+  
+# Indicamos otra paleta de colores del paquete RColorBrewer
+plot <- plot + scale_fill_brewer(palette = "Pastel1")
+plot
+
+```
+
+Si quisieramos graficar las barras unas encima de otras, podemos quitar el indicador 'position = "dodge"'.
+
+```{r}
+plot <- ggplot(data = cabbage_exp, aes(x = Date, y = Weight, fill = Cultivar)) +
+  geom_bar(stat = "identity", col = "black")
+plot
+```
+
+
+
+##Gráficas de frecuencias##
+
+A veces queremos representar la frecuencia con la que se repiten los datos en una muestra aleatoria. Para ello podemos usar gráficas de barras similares a las anteriores, pero ahora cambiaremos el tipo de 'stat'. Usaremos la base de datos 'diamonds' para ejemplificar el caso. Haremos una gráfica de frecuencias de la variable 'cut'. Primero observemos un poco los datos.
+
+```{r}
+head(diamonds)
+```
+
+Ahora grafiquemos:
+
+```{r}
+# Ahora nuestra gráfica solo necesita los datos de una variable (cut)
+plot <- ggplot(data = diamonds, aes(x = cut))
+
+# Cuando graficamos frecuencias indicamos stat = "bin". Éste es el stat por default, así que si dejamos geom_bar() sin indicar nada, tomará este tipo de stat
+plot + geom_bar()
+```
+
+El caso anterior es para una variable categórica. También podemos graficar para una variable continua, como es el caso de 'carat'. 
+
+```{r}
+ggplot(data = diamonds, aes(x = carat)) + geom_bar()
+
+# Podemos ajustar el ancho de las barras indicando 'width' en geom_bar()
+ggplot(data = diamonds, aes(x = carat)) + geom_bar(binwidth = 0.1)
+
+# Si estuvieramos en el caso de stat = "identity", usamos 'width' en lugar de 'binwidth'
+```
+

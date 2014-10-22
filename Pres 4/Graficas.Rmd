@@ -1,0 +1,288 @@
+---
+title: "Gráficas"
+author: "Josman"
+date: "21 de octubre de 2014"
+output: pdf_document
+---
+
+Introducción
+=======
+
+En este documento explicaremos nociones básicas para el diseño de gráficas en R a través del paquete ggplot2, explicaremos lo elemental en cada tipo de gráfica y desarrollaremos la intuición detrás del código.
+
+```{r, message=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(RColorBrewer) # Paletas de colores
+library(gcookbook) # De aquí sacaremos varios datos para graficar
+```
+
+El paquete ggplot2 se llama a sí mismo como "una implementación de la gramática de las gráficas". Este paquete nos permite crear gráficas mapeando capas paso por paso de múltiples bases de datos. Para el diseño de las gráficas usaremos "aesthetics" lo que describe como las variables en los datos son mapeadas a través de características visuales y geométricas.
+
+Gráficas de barras
+==========
+ 
+Digamos que tenemos una base de datos como la siguiente:
+
+```{r}
+cabbage_exp
+```
+
+Queremos graficar el peso obtenido para cada fecha. Para ello usaremos una gráfica de barras. Detallaremos cada capa que vayamos agregando en la gráfica. Mientras vayamos avanzando en el tema, detallaremos menos la explicación del código, pues se sigue la misma lógica que en los primeros ejemplos.
+
+```{r}
+# La primera capa crea un objeto 'ggplot', indica la base de datos principal de la gráfica y que variables estamos graficando en el eje 'x' y en el eje 'y'.
+plot <- ggplot(data = cabbage_exp, aes(x = Date, y = Weight))
+
+# Este objeto solo conoce los datos, ahora indicaremos cómo graficarlos.
+# Vamos agregando capas con '+'.
+# geom_bar() indica que agregamos una capa con una gráfica de barras
+# position = "dodge" sirve para que las barras queden separadas
+# stat = "identity" indica que esta no es una gráfica de frecuencias, sino de dos variables
+# fill indica el color de relleno
+# col indica el color del contorno
+plot <- plot + geom_bar(position = "dodge", stat = "identity", fill = "lightblue", col = "black")
+plot
+
+```
+
+Digamos que ahora queremos ver como afecta el factor 'Cultivar' a la variable 'Weight' en cada fecha. Para ello podemos hacer gráficas de barras agrupadas.
+
+```{r}
+# Ahora a la primera capa le estamos indicando que el color de relleno va a ser determinado por el factor 'Cultivar'.
+plot <- ggplot(data = cabbage_exp, aes(x = Date, y = Weight, fill = Cultivar))
+
+# A la segunda capa le quitamos el indicador del color de relleno pues ya está determinado por la variable 'Cultivar'-
+plot <- plot + geom_bar(position = "dodge", stat = "identity", col = "black") 
+plot
+  
+# Indicamos otra paleta de colores del paquete RColorBrewer
+plot <- plot + scale_fill_brewer(palette = "Pastel1")
+plot
+
+```
+
+Si quisieramos graficar las barras unas encima de otras, podemos quitar el indicador 'position = "dodge"'.
+
+```{r}
+plot <- ggplot(data = cabbage_exp, aes(x = Date, y = Weight, fill = Cultivar)) +
+  geom_bar(stat = "identity", col = "black")
+plot
+```
+
+
+
+##Gráficas de frecuencias##
+
+A veces queremos representar la frecuencia con la que se repiten los datos en una muestra aleatoria. Para ello podemos usar gráficas de barras similares a las anteriores, pero ahora cambiaremos el tipo de 'stat'. Usaremos la base de datos 'diamonds' para ejemplificar el caso. Haremos una gráfica de frecuencias de la variable 'cut'. Primero observemos un poco los datos.
+
+```{r}
+head(diamonds)
+```
+
+Ahora grafiquemos:
+
+```{r}
+# Ahora nuestra gráfica solo necesita los datos de una variable (cut)
+plot <- ggplot(data = diamonds, aes(x = cut))
+
+# Cuando graficamos frecuencias indicamos stat = "bin". Éste es el stat por default, así que si dejamos geom_bar() sin indicar nada, tomará este tipo de stat
+plot + geom_bar()
+```
+
+El caso anterior es para una variable categórica. También podemos graficar para una variable continua, como es el caso de 'carat'. 
+
+```{r}
+ggplot(data = diamonds, aes(x = carat)) + geom_bar()
+
+# Podemos ajustar el ancho de las barras indicando 'width' en geom_bar()
+ggplot(data = diamonds, aes(x = carat)) + geom_bar(binwidth = 0.1)
+
+# Si estuvieramos en el caso de stat = "identity", usamos 'width' en lugar de 'binwidth'
+```
+
+
+Gráficas de líneas
+============
+
+Existen muchos datos que su mejor respresentación se da a través de gráficas de líneas, por ejemplo, las series de tiempo. Las gráficas de líneas siguen la misma lógica que las gráficas de barras, solo que cambiaremos el tipo de 'geom'.
+
+Veamos los siguientes datos:
+```{r}
+head(worldpop)
+```
+
+Vemos que es una base de datos de series de tiempo que muestran el tamaño de la población de un determinado lugar a través de los años. Usaremos una gráfica de barras pare representar visualmente los datos:
+
+```{r}
+plot <- ggplot(data = worldpop, aes(x = Year, y = Population)) + geom_line()
+plot
+
+# Para indicar la muestra de datos agregaremos puntos en cada pareja de datos de nuestra muestra
+plot <- plot + geom_point()
+plot
+
+# Muchas veces en este tipo de datos es mejor usar escala logarítmica
+plot <- plot + scale_y_log10()
+plot
+```
+
+Ahora pensemos que tenemos unos datos como los siguientes:
+```{r}
+head(ToothGrowth)
+```
+
+Tenemos una muestra de varios tamaños de dientes clasificados por los factores 'supp' y 'dose'. A nosotros nos interesa representar la dosis que se debe aplicar según el tamaño de los dientes. Para eso no nos sirve graficar toda la dispersión de los datos, sino un resumen de ellos. Por lo cual antes de graficar tenemos que manipular los datos para que nos sean útiles:
+
+```{r}
+tg <- ToothGrowth %>%
+  group_by(supp, dose) %>%
+  summarise(length = mean(len))
+tg
+
+```
+
+Entonces podemos graficar la dosis con el tamaño y además ver la diferencia cuando cambia 'supp'.
+
+```{r}
+# Mapeamos 'supp' al color
+plot <- ggplot(tg, aes(x = dose, y = length, col = supp)) + geom_line()
+plot
+
+# Mapeamos 'supp' al tipo de línea
+plot <- ggplot(tg, aes(x = dose, y = length, linetype = supp)) + geom_line()
+plot
+
+# Podemos pensar en la dosis como una variable categórica
+# Notar que cuando usamos variables categóricas debemos indicar como agrupar las líneas
+plot <- ggplot(tg, aes(x = factor(dose), y = length, col = supp, group = supp)) + geom_line()
+plot
+```
+
+¿Qué pasa si no diferenciamos según la variable 'supp'?
+
+```{r}
+plot <- ggplot(tg, aes(x = dose, y = length)) + geom_line()
+plot
+```
+
+A través de la gráfica nos damos cuenta que hay algo mal con como estamos agrupando los datos.
+
+Podemos agregar puntos en los nodos dados por los datos:
+
+```{r}
+# Indicamos el tamaño de los puntos
+plot <- ggplot(tg, aes(x = dose, y = length, col = supp)) + geom_line() + geom_point(size = 4) 
+plot
+
+# Podemos separar los datos por el tipo de punto en lugar del color
+# 'shape' afecta únicamente a los puntos, las líneas no se ven afectadas por el atributo shape
+plot <- ggplot(tg, aes(x = dose, y = length, shape = supp)) + geom_line() + geom_point(size = 4) 
+plot
+
+# Indicamos los colores solo en los puntos
+# fill afecta solo a los puntos (las líneas no tienen relleno)
+plot <- ggplot(tg, aes(x = dose, y = length, fill = supp)) +
+  geom_line() + geom_point(size = 4, shape = 21)
+plot
+```
+
+##Intervalos de confianza##
+
+Veamos los siguientes datos:
+
+```{r}
+head(climate)
+```
+
+Estos datos presentan anomalías en el clima a través de los años. Nos interesa graficar los datos para Berkeley. La variable 'Unc10y' indica el intervalo de confianza del 95% para cada valor de la anomalía. Seleccionemos únicamente las variables que nos interesan para nuestra gráfica.
+
+```{r}
+clim <- climate %>%
+  filter(Source == "Berkeley") %>%
+  select(Year, Anomaly10y, Unc10y)
+
+head(clim)
+```
+
+Ahora grafiquemos:
+```{r}
+# Graficamos con una linea los valores de la anomalía a través de los años
+plot <- ggplot(clim, aes(x = Year, y = Anomaly10y)) + geom_line()
+plot
+
+# Ahora añadimos el intervalo de confianza con geom_ribbon
+# alpha indica la opacidad de la gráfica
+plot <- plot + geom_ribbon(aes(ymin = Anomaly10y - Unc10y, ymax = Anomaly10y + Unc10y), alpha = 0.2)
+plot
+```
+
+
+Gráficas de dispersión (puntos)
+========
+
+Veamos la siguiente base de datos. Nos interesa graficar como va cambiando la estatura conforme a la edad. Para ello graficaremos la dispersión de los datos e iremos añadiendo capas que nos ayuden a ver más a fondo los datos.
+
+```{r}
+# Cambio el nombre de la base de datos para nos ecribir todo
+hw <- heightweight
+
+head(hw)
+
+```
+
+Entonces grafiquemos:
+
+```{r}
+# Primero hagamos una gráfica de dispersión sencilla
+plot <- ggplot(hw, aes(x = ageYear, y = heightIn)) + geom_point(size = 1.5)
+plot
+
+# Agrupemos los datos según el sexo, indicando con el color de los puntos
+plot <- ggplot(hw, aes(x = ageYear, y = heightIn, col = sex)) + geom_point()
+plot
+
+# Agrupemos los datos según el sexo, indicando con la forma de los puntos
+plot <- ggplot(hw, aes(x = ageYear, y = heightIn, shape = sex)) + geom_point()
+plot
+
+# Usemos ambos indicadores
+# Agrupemos los datos según el sexo, indicando con el color de los puntos
+plot <- ggplot(hw, aes(x = ageYear, y = heightIn, col = sex, shape = sex)) + geom_point()
+plot
+
+# Personalicemos un poco más
+plot <- ggplot(hw, aes(x = ageYear, y = heightIn, col = sex, shape = sex)) + geom_point()
+plot <- plot + scale_shape_manual(values = c(1,2)) + 
+  scale_colour_brewer(palette = "Set1")
+plot
+# Fondo blanco
+plot + theme_bw()
+
+# Agrupemos para más de una variable.
+# Crearemos una varaible categórica para dividir el peso en dos partes
+hw$weightGroup <- cut(hw$weightLb, breaks = c(-Inf,100,Inf),
+                      labels = c("< 100", ">= 100"))
+# Graficamos
+plot <- ggplot(hw, aes(x = ageYear, y = heightIn, shape = sex, fill = weightGroup)) +
+  geom_point(size = 2.5) +
+  scale_shape_manual(values = c(21, 24)) 
+plot  
+
+# También podemos usar el peso como una variable continua
+# Indicamos el valor con el color
+plot <- ggplot(hw, aes(x = ageYear, y = heightIn, col = weightLb)) + geom_point()
+plot
+
+# Indicamos valor con el tamaño de los puntos
+plot <- ggplot(hw, aes(x = ageYear, y = heightIn, size = weightLb)) + geom_point()
+plot
+
+# Añadimos el indicador del sexo
+plot <- ggplot(hw, aes(x = ageYear, y = heightIn, size = weightLb, col = sex)) + geom_point(alpha = 0.5)
+plot + scale_colour_brewer(palette = "Set1")
+
+```
+
+
