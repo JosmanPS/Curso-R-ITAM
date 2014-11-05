@@ -2,7 +2,7 @@
 title: "Gráficas"
 author: "Josman"
 date: "21 de octubre de 2014"
-output: pdf_document
+output: html_document
 ---
 
 Introducción
@@ -16,6 +16,7 @@ library(tidyr)
 library(ggplot2)
 library(RColorBrewer) # Paletas de colores
 library(gcookbook) # De aquí sacaremos varios datos para graficar
+library(MASS) # Otros datos
 ```
 
 El paquete ggplot2 se llama a sí mismo como "una implementación de la gramática de las gráficas". Este paquete nos permite crear gráficas mapeando capas paso por paso de múltiples bases de datos. Para el diseño de las gráficas usaremos "aesthetics" lo que describe como las variables en los datos son mapeadas a través de características visuales y geométricas.
@@ -200,8 +201,7 @@ Estos datos presentan anomalías en el clima a través de los años. Nos interes
 
 ```{r}
 clim <- climate %>%
-  filter(Source == "Berkeley") %>%
-  select(Year, Anomaly10y, Unc10y)
+  filter(Source == "Berkeley")
 
 head(clim)
 ```
@@ -284,5 +284,199 @@ plot <- ggplot(hw, aes(x = ageYear, y = heightIn, size = weightLb, col = sex)) +
 plot + scale_colour_brewer(palette = "Set1")
 
 ```
+
+Añadiendo modelos de ajuste
+========
+
+Ahora que ya sabemos hacer gráficas de dispersión podemos añadir ajustes a nuestras gráficas, ya sean directamente hechos por ggplot o algunos modelos propios.
+````{r}
+head(heightweight)
+
+# Gráfica con un modelo lineal
+# Usamos stat_smooth para agregar el modelo de ajuste
+# Por default, la gráfica agrega un intervalo del 95% de confianza
+plot <- ggplot(heightweight, aes(x=ageYear, y=heightIn))
+plot <- plot + geom_point() + stat_smooth(method=lm)
+plot
+
+# Podemos cambiar el intervalo de confianza
+plot <- ggplot(heightweight, aes(x=ageYear, y=heightIn))
+plot <- plot + geom_point() + stat_smooth(method=lm, level=0.99)
+plot
+
+# O simplemente quitar el intervalo
+plot <- ggplot(heightweight, aes(x=ageYear, y=heightIn))
+plot <- plot + geom_point() + stat_smooth(method=lm, se=FALSE)
+plot
+
+# Podemos agregar modelos más flexibles que un modelo lineal
+# Explorar distintos métodos
+plot <- ggplot(heightweight, aes(x=ageYear, y=heightIn))
+plot <- plot + geom_point() + stat_smooth(method=loess)
+plot
+
+# Podemos igual separar por sexo y ver la diferencia de medias
+plot <- ggplot(heightweight, aes(x=ageYear, y=heightIn, col=sex))
+plot <- plot + geom_point() + stat_smooth(method=lm)
+plot
+````
+
+También podemos ajustar modelos de clasificación, como una regresión logística:
+```{r}
+# Hacemos la variable de clasificación class en forma numérica
+head(biopsy)
+biopsy$classn <- 0
+biopsy$classn[biopsy$class=="malignant"] <- 1
+head(biopsy)
+
+# Graficamos la regresión logística
+plot <- ggplot(biopsy, aes(x=V1, y=classn)) + geom_point() + geom_jitter()
+plot
+
+# Podemos hacer el 'jitter' más pequeño y agregar transparencia a los puntos
+plot <- ggplot(biopsy, aes(x=V1, y=classn)) + geom_point(position=position_jitter(width=0.3, height=0.06), alpha=0.4, shape=21, size=1.5)
+plot
+
+# Agregamos la regresión
+plot <- plot + stat_smooth(method=glm, family=binomial)
+plot
+````
+
+Ahora veamos más cosas que podemos hacer con gráficas de dispersión.
+
+###Anotaciones###
+
+```{r}
+# Veamos los siguientes datos
+head(countries)
+
+# Transformemos un poco los datos
+countries <- countries %>%
+  filter(Year==2009, healthexp>2000)
+head(countries)
+
+# Hacemos una gráfica de dispersión
+plot <- ggplot(countries, aes(x=healthexp, y=infmortality)) + geom_point()
+plot
+
+# Si quisiéramos saber qué país representa algún punto podemos agregar el texto manualmente
+plot + annotate("text", x=4350, y=5.4, label="Canada") +
+  annotate("text", x=7400, y=6.8, label="USA")
+
+# Podemos elegir una columna que indique las etiquestas, en este caso 'Name'
+plot + geom_text(aes(label=Name), size=4)
+````
+
+Ahora veamos cómo podemos hacer múltiples gráficas en una sola que nos den información de nuestros datos. En este caso utilizaremos las funciones plot de los paquetes básicos de R. Si desean ver como trabajar este tipo de matrices con ggplot, pueden explorar el paquete GGally, el cual es una extensión de ggplot.
+
+```{r}
+library(GGally)
+# Gráfica de correlaciones
+countries <- countries[,c("Name", "GDP", "laborrate", "healthexp", "infmortality")]
+# Paquete básico de R
+pairs(countries[,2:5])
+
+# GGally
+ggpairs(countries[,2:5])
+
+```
+
+Gráficas de caja
+======
+
+Un tipo de gráficas muy usadas que nos permite conocer la distribución de los datos y sus cuantiles principales son las gráficas de cajas. Podemos hacerlo muy fácil con ggplot usando la función `geom_boxplot()`. Los atributos de diseño que queramos añadir se hacen igual que en los demás casos.
+
+```{r}
+head(birthwt)
+
+# Gráfica separando por raza
+ggplot(birthwt, aes(x=factor(race), y=bwt)) + geom_boxplot()
+
+# Podemos añadir la media a la gráfica
+ggplot(birthwt, aes(x=factor(race), y=bwt)) + geom_boxplot() +
+  stat_summary(fun.y="mean", geom="point", shape=23, size=3, fill="white")
+
+# Podemos añadir la dispersión de los datos
+ggplot(birthwt, aes(x=factor(race), y=bwt)) + geom_boxplot() +
+  geom_point() + geom_jitter()
+
+# Podemos también crear gráficas de violín para ver la densidad
+ggplot(birthwt, aes(x=factor(race), y=bwt)) + geom_violin()
+
+# Combinando ambas gráficas
+ggplot(birthwt, aes(x=factor(race), y=bwt)) + geom_violin() +
+  geom_boxplot(width=.1, fill="black", outlier.colour=NA) +
+  stat_summary(fun.y=median, geom="point", fill="white", shape=21, size=2.5)
+
+````
+
+Densidades, distribuciones y facets
+==========
+
+Anteriormente habíamos visto como hacer gráficas de barras que representaban histogramas. Ahora veamos como representar distintas densidades de los datos.
+
+```{r}
+# Podemos hacer un histograma sencillo
+plot <- ggplot(birthwt, aes(x=bwt)) + geom_histogram(fill="white", col="black")
+plot
+
+# Podemos separarlos entre los que fuman y los que no
+plot + facet_grid(smoke ~ .)
+
+# Podemos separar también entre razas
+plot + facet_grid(race ~.)
+
+# Otra forma de ver las diferencias en distribuciones es con los colores
+# El usar position="identity" sirve para que las barras cuenten por separado y no una sobre otra
+plot <- ggplot(birthwt, aes(x=bwt, fill=factor(smoke))) + geom_histogram(position="identity", alpha = 0.6)
+plot
+````
+
+Podemos también aproximar cómo se verían las curvas de densidad de los datos. Podemos hacerlo de dos formas, ya depende de gustos cómo lo hagan:
+
+```{r}
+head(faithful)
+# Modo 1: con geom_density()
+ggplot(faithful, aes(x=waiting)) + geom_density()
+
+# Modo 2: con geom_line()
+ggplot(faithful, aes(x=waiting)) + geom_line(stat="density")
+
+# Podemos indicar la suavidad del ajuste
+ggplot(faithful, aes(x=waiting)) +
+  geom_line(stat="density") +
+  geom_line(stat="density", adjust=0.25, col="red") +
+  geom_line(stat="density", adjust=2, col="blue") 
+  
+# También podemos usar colores en las densidades
+ggplot(faithful, aes(x=waiting)) + 
+  geom_density(fill="blue", col=NA, alpha=0.2) +
+  geom_line(stat="density")
+
+# Graficamos conjuntamente el histograma con la densidad
+ggplot(faithful, aes(x=waiting, y=..density..)) +
+  geom_histogram(fill="lightblue", col="black", size=0.2) +
+  geom_density()
+
+# También podemos representar los datos a través de un polígono de frecuencias
+ggplot(faithful, aes(x=waiting)) + geom_freqpoly()
+
+# Usando menos segmentos
+ggplot(faithful, aes(x=waiting)) + geom_freqpoly(binwidth=4)
+
+# Podemos graficar densidades en dos dimensiones (2 variables)
+plot <- ggplot(faithful, aes(x=eruptions, y=waiting))
+plot + geom_point() + geom_density2d()
+
+# Podemos agregar un color degradado para ver mejor la densidad
+plot + stat_density2d(aes(col=..level..))
+
+# Mapa de densidad
+plot + stat_density2d(aes(fill=..density..), geom="raster", contour=F)
+
+# Otra forma de mapa de densidad
+plot + geom_point() + 
+  stat_density2d(aes(alpha=..density..), geom="tile", contour=F)
+````
 
 
